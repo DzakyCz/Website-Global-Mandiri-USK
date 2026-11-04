@@ -33,7 +33,7 @@ export default function About({ isPage = false }) {
             Kami percaya bahwa sinergi antara keunggulan akademik dan dunia bisnis akan memberikan dampak nyata bagi kemajuan masyarakat. Komitmen kami adalah menghadirkan solusi yang profesional, inovatif, dan berorientasi pada kebutuhan pelanggan, sekaligus menjadi pilar penguatan ekosistem kewirausahaan berbasis pendidikan di Indonesia.
           </p>
           {!isPage && (
-            <Link href="/about#about-hero" className="text-link" data-reveal="rise" style={{ '--reveal-delay': '420ms' }}>
+            <Link href="/about" className="text-link" data-reveal="rise" style={{ '--reveal-delay': '420ms' }}>
               More About Us <span><ArrowIcon direction="up-right" /></span>
             </Link>
           )}

@@ -13,7 +13,7 @@ export default function Header() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const navItems = [
     ['01', 'Beranda', '/'],
-    ['02', 'Tentang', '/about#about-hero'],
+    ['02', 'Tentang', '/about'],
     ['03', 'Bidang', '/bidang'],
     ['04', 'Kabar', '/kabar'],
     ['05', 'Karir', '/karir'],
