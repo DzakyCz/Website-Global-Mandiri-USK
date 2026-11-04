@@ -1,5 +1,4 @@
-import Link from 'next/link';
-import ArrowIcon from './icons/ArrowIcon';
+import HeroScrollCue from './HeroScrollCue';
 
 export default function Hero() {
   return (
@@ -7,12 +6,10 @@ export default function Hero() {
       <div className="hero-image" aria-hidden="true" />
       <div className="hero-wash" aria-hidden="true" />
       <div className="hero-content">
-        <p className="hero-eyebrow" data-reveal="rise">HOLDING COMPANY OF UNIVERSITAS SYIAH KUALA</p>
+        <p className="hero-eyebrow" data-reveal="rise">HOLDING COMPANY OF SYIAH KUALA UNIVERSITY</p>
         <h1>PT GLOBAL<br />MANDIRI USK</h1>
         <p className="hero-slogan" data-reveal="rise">TOGERTHER WE GROW, TOGETHER WE SHINE</p>
-        <Link href="#about" className="hero-scroll" data-reveal="rise">
-          <span className="scroll-mark"><ArrowIcon direction="down" /></span><span>Scroll to explore</span>
-        </Link>
+        <HeroScrollCue />
       </div>
     </section>
   );
