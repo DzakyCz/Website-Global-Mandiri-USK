@@ -2,17 +2,20 @@
 
 import Link from 'next/link';
 import Image from 'next/image';
-import { useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { newsItems } from '../data/news';
 import ArrowIcon from './icons/ArrowIcon';
 
 const newsCategories = ['Update Perusahaan', 'Kerja Sama', 'Bisnis', 'Berita'];
 const PAGE_SIZE = 5;
 const HOME_PREVIEW_SIZE = 3;
+// Sama dengan scroll-padding-top pada html di site.css
+const HEADER_OFFSET = 92;
 
 export default function News({ isPage = false }) {
   const [selectedCategory, setSelectedCategory] = useState(null);
   const [currentPage, setCurrentPage] = useState(1);
+  const pageChangedByUser = useRef(false);
 
   const visibleNewsItems = selectedCategory
     ? newsItems.filter((item) =>
@@ -32,9 +35,21 @@ export default function News({ isPage = false }) {
   };
 
   const goToPage = (nextPage) => {
+    if (nextPage === page) return;
+    pageChangedByUser.current = true;
     setCurrentPage(nextPage);
-    document.getElementById('news')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
   };
+
+  // Gulirkan setelah daftar baru dirender, dan hanya jika awal daftar sudah
+  // terlewat ke atas. Kalau awal daftar masih terlihat, biarkan posisi pembaca.
+  useEffect(() => {
+    if (!pageChangedByUser.current) return;
+    pageChangedByUser.current = false;
+
+    const news = document.getElementById('news');
+    if (!news) return;
+    if (news.getBoundingClientRect().top < HEADER_OFFSET) news.scrollIntoView();
+  }, [page]);
 
   return (
     <section id="news" className={`news-section${isPage ? ' news-page-section' : ''}`}>
