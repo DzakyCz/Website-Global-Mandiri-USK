@@ -1793,7 +1793,7 @@ img {
   font-size: 14px;
   font-weight: 700;
   cursor: pointer;
-  transition: border-color 180ms ease, background-color 180ms ease, box-shadow 180ms ease;
+  transition: border-color 180ms ease, color 180ms ease, background-color 180ms ease, box-shadow 180ms ease;
 }
 
 .sector-filter-toggle:hover,
@@ -1806,7 +1806,7 @@ img {
 
 .sector-filter-toggle:hover {
   border-color: #ffbc23;
-  color: var(--bmu-navy);
+  color: var(--bmu-text-blue);
   background: #ffbc23;
 }
 
@@ -2583,11 +2583,11 @@ img {
   letter-spacing: 0.03em;
   text-transform: uppercase;
   cursor: pointer;
-  transition: background-color 160ms ease, transform 160ms ease;
+  transition: background-color 160ms ease, color 160ms ease, transform 160ms ease;
 }
 
 .job-search-submit:hover {
-  color: var(--bmu-navy);
+  color: var(--bmu-text-blue);
   background: #ffbc23;
   transform: translateY(-1px);
 }
