@@ -30,7 +30,6 @@ h6,
 .hero-eyebrow,
 .hero-slogan,
 .menu-kicker,
-.language-toggle,
 .preview-caption,
 .history-tag,
 .text-link,
@@ -232,25 +231,6 @@ img {
 
 .header-nav-link.is-active::after {
   transform: scaleX(1);
-}
-
-.language-toggle {
-  padding: 4px 9px;
-  border: 1px solid transparent;
-  border-radius: 999px;
-  color: var(--bmu-navy);
-  background: none;
-  font-size: 11px;
-  font-weight: 700;
-  letter-spacing: 1.3px;
-  cursor: pointer;
-  transition: border-color 160ms ease, color 160ms ease;
-}
-
-.language-toggle:hover,
-.language-toggle:focus-visible {
-  border-color: var(--bmu-text-blue);
-  color: var(--bmu-text-blue);
 }
 
 .menu-toggle {
@@ -4790,10 +4770,6 @@ img {
 
   .hero h1 {
     font-size: 37px;
-  }
-
-  .language-toggle {
-    font-size: 9px;
   }
 
   .header-actions {

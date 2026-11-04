@@ -4,11 +4,9 @@ import Link from 'next/link';
 import Image from 'next/image';
 import { usePathname } from 'next/navigation';
 import HomeLink from './HomeLink';
-import { useLanguage } from '../context/LanguageContext';
 
 export default function Header() {
   const pathname = usePathname();
-  const { language, toggleLanguage } = useLanguage();
   const [isScrolled, setIsScrolled] = useState(false);
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const navItems = [
@@ -82,14 +80,6 @@ export default function Header() {
             })}
           </nav>
           <div className="header-actions">
-            <button
-              type="button"
-              className="language-toggle"
-              onClick={toggleLanguage}
-              aria-label={`Ganti bahasa ke ${language === 'id' ? 'Inggris' : 'Indonesia'}`}
-            >
-              {language.toUpperCase()}
-            </button>
             <button
               className={`menu-toggle${isMenuOpen ? ' is-open' : ''}`}
               type="button"
