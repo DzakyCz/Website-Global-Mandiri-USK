@@ -2,34 +2,26 @@
 
 import Image from 'next/image';
 import dynamic from 'next/dynamic';
-import { useRef, useState } from 'react';
-import { businessUnits, businessCategories } from '../data/business-units';
+import { useEffect, useRef, useState } from 'react';
+import { businessUnits, businessCategories, businessCatalogs } from '../data/business-units';
 import ArrowIcon from './icons/ArrowIcon';
+import SectorCatalogDialog from './SectorCatalogDialog';
 
 const ExportGlobe = dynamic(() => import('./ExportGlobe'), { ssr: false });
 
-const productCatalogPages = Array.from({ length: 10 }, (_, index) => ({
-  src: `/Images/bidang/produk-nilam/halaman-${String(index + 1).padStart(2, '0')}.jpg`,
-  page: index + 1,
-}));
-
-const digitalPrintingCatalogPages = Array.from({ length: 4 }, (_, index) => ({
-  src: `/Images/bidang/digital-printing/halaman-${String(index + 1).padStart(2, '0')}.jpg`,
-  page: index + 1,
-}));
+// Sama dengan scroll-padding-top pada html di site.css
+const HEADER_OFFSET = 92;
 
 export default function SectorsDirectory() {
-  const productDialogRef = useRef(null);
-  const digitalPrintingDialogRef = useRef(null);
   const nilamDialogRef = useRef(null);
-  const [currentCatalogPage, setCurrentCatalogPage] = useState(0);
-  const [currentDigitalPrintingPage, setCurrentDigitalPrintingPage] = useState(0);
+  const [activeCatalog, setActiveCatalog] = useState(null);
   const [currentNilamPage, setCurrentNilamPage] = useState(0);
   const [isNilamDialogOpen, setIsNilamDialogOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedCategories, setSelectedCategories] = useState(null);
   const [isFilterOpen, setIsFilterOpen] = useState(false);
   const [currentPage, setCurrentPage] = useState(1);
+  const pageChangedByUser = useRef(false);
   const pageSize = 6;
   const query = searchQuery.trim().toLocaleLowerCase('id');
   const visibleBusinessUnits = businessUnits.filter((unit) =>
@@ -41,36 +33,36 @@ export default function SectorsDirectory() {
   const paginatedBusinessUnits = visibleBusinessUnits.slice(pageStart, pageStart + pageSize);
   const firstVisibleUnit = visibleBusinessUnits.length === 0 ? 0 : pageStart + 1;
   const lastVisibleUnit = Math.min(pageStart + pageSize, visibleBusinessUnits.length);
-  const openProductDialog = () => {
-    setCurrentCatalogPage(0);
-    productDialogRef.current?.showModal();
-  };
-  const openDigitalPrintingDialog = () => {
-    setCurrentDigitalPrintingPage(0);
-    digitalPrintingDialogRef.current?.showModal();
-  };
   const openNilamDialog = () => {
     setCurrentNilamPage(0);
     setIsNilamDialogOpen(true);
     nilamDialogRef.current?.showModal();
   };
-  const DIALOG_UNIT_NAMES = [
-    'Produk Turunan Nilam',
-    'Digital Printing',
-    'Perdagangan Minyak Nilam',
-  ];
+  // Perdagangan Minyak Nilam memakai dialog khususnya sendiri; sisanya katalog halaman PDF.
+  const hasDialogFor = (name) => name === 'Perdagangan Minyak Nilam' || name in businessCatalogs;
   const openDialogForUnit = (name) => {
-    switch (name) {
-      case 'Produk Turunan Nilam': openProductDialog(); break;
-      case 'Digital Printing': openDigitalPrintingDialog(); break;
-      case 'Perdagangan Minyak Nilam': openNilamDialog(); break;
-      default: break;
+    if (name === 'Perdagangan Minyak Nilam') {
+      openNilamDialog();
+    } else if (name in businessCatalogs) {
+      setActiveCatalog({ name, ...businessCatalogs[name] });
     }
   };
   const goToPage = (nextPage) => {
+    if (nextPage === currentPage) return;
+    pageChangedByUser.current = true;
     setCurrentPage(nextPage);
-    document.getElementById('sectors')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
   };
+
+  // Gulirkan setelah daftar baru dirender, dan hanya jika awal daftar sudah
+  // terlewat ke atas. Kalau awal daftar masih terlihat, biarkan posisi pembaca.
+  useEffect(() => {
+    if (!pageChangedByUser.current) return;
+    pageChangedByUser.current = false;
+
+    const sectors = document.getElementById('sectors');
+    if (!sectors) return;
+    if (sectors.getBoundingClientRect().top < HEADER_OFFSET) sectors.scrollIntoView();
+  }, [currentPage]);
 
   return (
     <>
@@ -153,7 +145,7 @@ export default function SectorsDirectory() {
         <>
           <div className="sector-directory-grid">
             {paginatedBusinessUnits.map((unit, index) => {
-              const hasDialog = DIALOG_UNIT_NAMES.includes(unit.name);
+              const hasDialog = hasDialogFor(unit.name);
               return (
               <article
                 className={`sector-directory-card${hasDialog ? ' is-clickable' : ''}`}
@@ -239,186 +231,11 @@ export default function SectorsDirectory() {
           Tidak ada bidang usaha yang cocok dengan “{searchQuery.trim()}”.
         </p>
       )}
-      <dialog
-        className="sector-product-dialog"
-        ref={productDialogRef}
-        aria-labelledby="sector-product-dialog-title"
-        onCancel={(event) => {
-          event.preventDefault();
-          event.currentTarget.close();
-        }}
-        onKeyDown={(event) => {
-          if (event.key === 'ArrowLeft') {
-            setCurrentCatalogPage((page) => Math.max(0, page - 1));
-          } else if (event.key === 'ArrowRight') {
-            setCurrentCatalogPage((page) => Math.min(productCatalogPages.length - 1, page + 1));
-          }
-        }}
-        onClick={(event) => {
-          if (event.target === event.currentTarget) {
-            event.currentTarget.close();
-          }
-        }}
-      >
-        <div className="sector-product-dialog-content">
-          <div className="sector-product-dialog-header">
-            <h2 id="sector-product-dialog-title">Produk Turunan Nilam</h2>
-            <button
-              className="sector-product-dialog-close"
-              type="button"
-              onClick={() => productDialogRef.current?.close()}
-              aria-label="Tutup detail Produk Turunan Nilam"
-            >
-              ×
-            </button>
-          </div>
-          <div className="sector-product-dialog-carousel" aria-label="Carousel katalog produk nilam">
-            <div className="sector-product-dialog-frame">
-              <div
-                className="sector-product-dialog-track"
-                style={{ transform: `translateX(-${currentCatalogPage * 100}%)` }}
-                aria-live="polite"
-              >
-                {productCatalogPages.map(({ src, page }) => (
-                  <div className="sector-product-dialog-slide" key={src} aria-hidden={currentCatalogPage !== page - 1}>
-                    <Image
-                      className="sector-product-dialog-page"
-                      src={src}
-                      alt={`Halaman ${page} katalog produk nilam`}
-                      fill
-                      sizes="(max-width: 760px) 100vw, 900px"
-                      priority={page === 1}
-                    />
-                  </div>
-                ))}
-              </div>
-              <button
-                className="sector-product-dialog-arrow is-previous"
-                type="button"
-                aria-label="Halaman katalog sebelumnya"
-                disabled={currentCatalogPage === 0}
-                onClick={() => setCurrentCatalogPage((page) => Math.max(0, page - 1))}
-              >
-                ‹
-              </button>
-              <button
-                className="sector-product-dialog-arrow is-next"
-                type="button"
-                aria-label="Halaman katalog berikutnya"
-                disabled={currentCatalogPage === productCatalogPages.length - 1}
-                onClick={() => setCurrentCatalogPage((page) => Math.min(productCatalogPages.length - 1, page + 1))}
-              >
-                ›
-              </button>
-            </div>
-            <div className="sector-product-dialog-dots" role="group" aria-label="Pilih halaman katalog">
-              {productCatalogPages.map(({ page }) => (
-                <button
-                  className={`sector-product-dialog-dot${currentCatalogPage === page - 1 ? ' is-active' : ''}`}
-                  key={page}
-                  type="button"
-                  aria-label={`Buka halaman ${page}`}
-                  aria-current={currentCatalogPage === page - 1 ? 'page' : undefined}
-                  onClick={() => setCurrentCatalogPage(page - 1)}
-                />
-              ))}
-            </div>
-          </div>
-          <p className="sector-product-dialog-description">
-            Menghadirkan rangkaian parfum dan perawatan kulit berbasis minyak nilam dengan kualitas alami yang murni, aman, dan berstandar tinggi untuk menunjang kecantikan dan kepercayaan diri.
-          </p>
-        </div>
-      </dialog>
-      <dialog
-        className="sector-product-dialog"
-        ref={digitalPrintingDialogRef}
-        aria-labelledby="sector-digital-printing-dialog-title"
-        onCancel={(event) => {
-          event.preventDefault();
-          event.currentTarget.close();
-        }}
-        onKeyDown={(event) => {
-          if (event.key === 'ArrowLeft') {
-            setCurrentDigitalPrintingPage((page) => Math.max(0, page - 1));
-          } else if (event.key === 'ArrowRight') {
-            setCurrentDigitalPrintingPage((page) => Math.min(digitalPrintingCatalogPages.length - 1, page + 1));
-          }
-        }}
-        onClick={(event) => {
-          if (event.target === event.currentTarget) {
-            event.currentTarget.close();
-          }
-        }}
-      >
-        <div className="sector-product-dialog-content">
-          <div className="sector-product-dialog-header">
-            <h2 id="sector-digital-printing-dialog-title">Digital Printing</h2>
-            <button
-              className="sector-product-dialog-close"
-              type="button"
-              onClick={() => digitalPrintingDialogRef.current?.close()}
-              aria-label="Tutup detail Digital Printing"
-            >
-              ×
-            </button>
-          </div>
-          <div className="sector-product-dialog-carousel" aria-label="Carousel katalog digital printing">
-            <div className="sector-product-dialog-frame">
-              <div
-                className="sector-product-dialog-track"
-                style={{ transform: `translateX(-${currentDigitalPrintingPage * 100}%)` }}
-                aria-live="polite"
-              >
-                {digitalPrintingCatalogPages.map(({ src, page }) => (
-                  <div className="sector-product-dialog-slide" key={src} aria-hidden={currentDigitalPrintingPage !== page - 1}>
-                    <Image
-                      className="sector-product-dialog-page"
-                      src={src}
-                      alt={`Halaman ${page} katalog digital printing`}
-                      fill
-                      sizes="(max-width: 760px) 100vw, 900px"
-                      priority={page === 1}
-                    />
-                  </div>
-                ))}
-              </div>
-              <button
-                className="sector-product-dialog-arrow is-previous"
-                type="button"
-                aria-label="Halaman katalog sebelumnya"
-                disabled={currentDigitalPrintingPage === 0}
-                onClick={() => setCurrentDigitalPrintingPage((page) => Math.max(0, page - 1))}
-              >
-                ‹
-              </button>
-              <button
-                className="sector-product-dialog-arrow is-next"
-                type="button"
-                aria-label="Halaman katalog berikutnya"
-                disabled={currentDigitalPrintingPage === digitalPrintingCatalogPages.length - 1}
-                onClick={() => setCurrentDigitalPrintingPage((page) => Math.min(digitalPrintingCatalogPages.length - 1, page + 1))}
-              >
-                ›
-              </button>
-            </div>
-            <div className="sector-product-dialog-dots" role="group" aria-label="Pilih halaman katalog">
-              {digitalPrintingCatalogPages.map(({ page }) => (
-                <button
-                  className={`sector-product-dialog-dot${currentDigitalPrintingPage === page - 1 ? ' is-active' : ''}`}
-                  key={page}
-                  type="button"
-                  aria-label={`Buka halaman ${page}`}
-                  aria-current={currentDigitalPrintingPage === page - 1 ? 'page' : undefined}
-                  onClick={() => setCurrentDigitalPrintingPage(page - 1)}
-                />
-              ))}
-            </div>
-          </div>
-          <p className="sector-product-dialog-description">
-            Menyediakan layanan percetakan dan finishing produk cetak yang mendukung kebutuhan promosi, publikasi, dan administrasi, dengan hasil yang presisi, menarik, dan profesional.
-          </p>
-        </div>
-      </dialog>
+      <SectorCatalogDialog
+        key={activeCatalog?.folder ?? 'none'}
+        catalog={activeCatalog}
+        onClose={() => setActiveCatalog(null)}
+      />
       <dialog
         className="sector-product-dialog"
         ref={nilamDialogRef}
