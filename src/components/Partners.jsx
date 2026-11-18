@@ -5,7 +5,7 @@ import { useEffect, useRef } from 'react';
 
 const partners = [
   '1.png', '2.png', '3.png', '4.png', '5.png', '6.png', '7.png', '8.png', '9.png',
-  '10.png', '11.webp', '12.png', '13.png', '14.png', '15.webp', '16.png', '17.png', '18.png', '19.png',
+  '10.png', '11.webp', '12.png', '13.png', '14.png', '15.png', '16.png', '17.png', '18.png', '19.png',
 ];
 
 const MAX_BOOST = 0.5;

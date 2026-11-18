@@ -18,10 +18,6 @@ const collaborations = [
     title: 'Kolaborasi dengan Panasonic (elektronik).',
   },
   {
-    image: '/Images/kolaborasi strategis/migas.png',
-    title: 'Kerja sama dengan Cesco (minyak & gas).',
-  },
-  {
     image: '/Images/kolaborasi strategis/konsultan nilam.png',
     title: 'Kerja sama dengan PT LARAS (konsultan nilam).',
   },
@@ -31,7 +27,7 @@ const collaborations = [
   },
   {
     image: '/Images/kolaborasi strategis/aldzama.png',
-    title: 'Kerja sama dengan PT Aldzama.',
+    title: 'PT Aldzama Industrial Services (Mining, Oil & Gas).',
   },
 ];
 
